@@ -1,65 +1,81 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const [coins, setCoins] = useState([]);
+  const [search, setSearch] = useState('');
+  useEffect(() => {
+    fetch(
+      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false'
+    )
+      .then((res) => res.json())
+      .then((data) => setCoins(data))
+      .catch((error) => console.log(error));
+  }, []);
+  const filteredCoins = coins.filter((coin) =>
+    coin.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="min-h-screen bg-slate-900 text-white p-8">
+
+      <div className="max-w-4xl mx-auto text-center mb-10">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-4">
+          Crypto Portfolio Tracker
+        </h1>
+        <p className="text-slate-400 mb-8">Live Prices by CoinGecko API</p>
+
+
+        <input
+          type="text"
+          placeholder="Search Bitcoin, Ethereum..."
+          className="w-full max-w-md p-3 rounded-lg bg-slate-800 border border-slate-700 focus:outline-none focus:border-cyan-400 transition-colors text-white"
+          onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      </div>
+
+
+      <div className="max-w-4xl mx-auto bg-slate-800 rounded-xl shadow-2xl overflow-hidden border border-slate-700">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-slate-950 text-slate-400 uppercase text-sm">
+              <tr>
+                <th className="p-4">Coin</th>
+                <th className="p-4">Price</th>
+                <th className="p-4">24h Change</th>
+                <th className="p-4">Market Cap</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-700">
+              {filteredCoins.map((coin) => (
+                <tr key={coin.id} className="hover:bg-slate-700/50 transition-colors">
+                  <td className="p-4 flex items-center gap-3">
+                    <img src={coin.image} alt={coin.name} className="w-8 h-8 rounded-full" />
+                    <div>
+                      <p className="font-bold">{coin.name}</p>
+                      <span className="text-xs text-slate-400 uppercase">{coin.symbol}</span>
+                    </div>
+                  </td>
+                  <td className="p-4 font-mono">
+                    ${coin.current_price.toLocaleString()}
+                  </td>
+                  <td className={`p-4 font-bold ${coin.price_change_percentage_24h > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {coin.price_change_percentage_24h.toFixed(2)}%
+                  </td>
+                  <td className="p-4 text-slate-400">
+                    ${coin.market_cap.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+
+      <div className="text-center mt-10 text-slate-500 text-sm">
+        Built with Next.js & Tailwind CSS by Raushan
+      </div>
+    </main>
   );
 }
