@@ -52,7 +52,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 - `npm run dev` - Start development server
 - `npm run build` - Build production bundle
-- `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
 ### Build for Production
